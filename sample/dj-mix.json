@@ -1,0 +1,82 @@
+{
+  "djMix": {
+    "completeMixAudioFile": "/path/to/complete/mix.wav",
+    "setTrackList": [
+      {
+        "startTime": "00:00:00:000",
+        "trackNumber": 1,
+        "title": "Lemonade Fizz",
+        "artist": "Johannes Albert",
+        "bpm": 121,
+        "beatNumber": 1,
+        "position": "00:00:00:000",
+        "videoPlaceholder": "/path/to/video/clip1.mp4",
+        "transition": {
+          "startTime": "00:06:20:000",
+          "endTime": "00:06:29:000",
+          "type": "Crossfade"
+        }
+      },
+      {
+        "startTime": "00:06:29:000",
+        "trackNumber": 2,
+        "title": "It's Insanity",
+        "artist": "ALPHADOG",
+        "bpm": 122,
+        "beatNumber": 779,
+        "position": "00:06:29:000",
+        "videoPlaceholder": "/path/to/video/clip2.mp4",
+        "transition": {
+          "startTime": "00:13:18:000",
+          "endTime": "00:13:27:000",
+          "type": "Iris wipe"
+        }
+      },
+      {
+        "startTime": "00:13:27:000",
+        "trackNumber": 3,
+        "title": "Glucose",
+        "artist": "Monastetiq, Zanjma",
+        "bpm": 124,
+        "beatNumber": 1640,
+        "position": "00:13:27:000",
+        "videoPlaceholder": "/path/to/video/clip3.mp4",
+        "transition": {
+          "startTime": "00:19:07:000",
+          "endTime": "00:19:16:000",
+          "type": "Heart"
+        }
+      },
+      {
+        "startTime": "00:19:16:000",
+        "trackNumber": 4,
+        "title": "Retro Future",
+        "artist": "Rami Chami",
+        "bpm": 121,
+        "beatNumber": 2390,
+        "position": "00:19:16:000",
+        "videoPlaceholder": "/path/to/video/clip4.mp4",
+        "transition": {
+          "startTime": "00:25:36:000",
+          "endTime": "00:25:45:000",
+          "type": "Glitch"
+        }
+      },
+      {
+        "startTime": "00:25:45:000",
+        "trackNumber": 5,
+        "title": "Madness",
+        "artist": "KARPOVICH, Brosso, Jon.K",
+        "bpm": 124,
+        "beatNumber": 3112,
+        "position": "00:25:45:000",
+        "videoPlaceholder": "/path/to/video/clip5.mp4",
+        "transition": {
+          "startTime": "00:32:43:000",
+          "endTime": "00:32:52:000",
+          "type": "Crossfade"
+        }
+      }
+    ]
+  }
+}
