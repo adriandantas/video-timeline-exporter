@@ -151,7 +151,7 @@ npm run cli -- -i <input-file> -f fcpxml -o <output-file>
 For example:
 
 ```bash
-npm run cli -- -i ./sample/dj-set.json -f fcpxml -o ./output.fcpxml
+npm run cli -- -i ./sample/dj-mix.json -f fcpxml -o ./output.fcpxml
 ```
 
 Note the `--` after `npm run cli`. This ensures that the arguments are passed to our CLI script and not to npm itself.
