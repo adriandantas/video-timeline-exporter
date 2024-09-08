@@ -1,0 +1,39 @@
+{
+  "name": "video-timeline-exporter",
+  "version": "1.0.0",
+  "description": "Export video timelines to Final Cut Pro XML format",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "video-timeline-export": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "start": "node dist/cli.js",
+    "docs": "typedoc",
+    "cli": "ts-node src/cli.ts"
+  },
+  "keywords": [
+    "video",
+    "timeline",
+    "export",
+    "fcpxml",
+    "final cut pro",
+    "converter"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^10.1.0",
+    "xml2js": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "@types/node": "^16.18.108",
+    "@types/xml2js": "^0.4.11",
+    "ts-node": "^10.9.2",
+    "typedoc": "^0.26.6",
+    "typescript": "^4.9.5"
+  }
+}
