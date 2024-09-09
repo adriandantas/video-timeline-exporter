@@ -7,6 +7,7 @@ A flexible tool for exporting video timelines to Final Cut Pro XML format.
 - Convert DJ mix JSON data to Final Cut Pro XML format
 - Command-line interface for easy integration into workflows
 - Exportable library for use in other Node.js projects
+- Comprehensive unit tests for reliability and maintainability
 
 ## Installation
 
@@ -138,9 +139,19 @@ To set up the project for development:
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Build the project: `npm run build`
-4. Run tests: `npm test` (once tests are implemented)
+4. Run tests: `npm test`
 
-## Development Usage
+### Running Tests
+
+This project uses Jest for unit testing. To run the tests:
+
+```bash
+npm test
+```
+
+This will run all the unit tests in the `tests` directory. The tests cover both the core functionality in `index.ts` and the CLI operations in `cli.ts`.
+
+### Development Usage
 
 When developing or testing the CLI locally, you can use the following npm script:
 
@@ -156,10 +167,15 @@ npm run cli -- -i ./sample/dj-mix.json -f fcpxml -o ./output.fcpxml
 
 Note the `--` after `npm run cli`. This ensures that the arguments are passed to our CLI script and not to npm itself.
 
-
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request. When contributing:
+
+1. Fork the repository
+2. Create a new branch for your feature or bug fix
+3. Write tests for your changes
+4. Ensure all tests pass by running `npm test`
+5. Submit a pull request with a clear description of your changes
 
 ## License
 

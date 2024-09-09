@@ -9,7 +9,7 @@ import { DJMix, exportToFCPXML } from './index';
  * @returns {Promise<DJMix>} A promise that resolves to the parsed DJ Mix data.
  * @throws Will throw an error if the file cannot be read or parsed.
  */
-async function readDjMixFile(inputFile: string): Promise<DJMix> {
+export async function readDjMixFile(inputFile: string): Promise<DJMix> {
     try {
         const jsonData = await fs.readJSON(inputFile) as DJMix;
         return jsonData;
@@ -22,7 +22,7 @@ async function readDjMixFile(inputFile: string): Promise<DJMix> {
 /**
  * Displays help information for using the script.
  */
-function showHelp() {
+export function showHelp(): void {
     console.log(`
 Usage: video-timeline-export [options]
 
@@ -42,7 +42,7 @@ Example:
  * @param {string[]} args - The command line arguments to parse.
  * @returns {Object | null} An object containing the parsed arguments, or null if required arguments are missing.
  */
-function parseArguments(args: string[]): { input: string; format: string; output: string } | null {
+export function parseArguments(args: string[]): { input: string; format: string; output: string } | null {
     let input = '';
     let format = '';
     let output = '';
@@ -63,8 +63,7 @@ function parseArguments(args: string[]): { input: string; format: string; output
                 break;
             case '-h':
             case '--help':
-                showHelp();
-                process.exit(0);
+                return null;
         }
     }
 
@@ -76,28 +75,39 @@ function parseArguments(args: string[]): { input: string; format: string; output
 }
 
 /**
+ * Processes the DJ Mix conversion based on the provided arguments.
+ * @param {Object} args - The parsed command line arguments.
+ * @returns {Promise<void>}
+ */
+export async function processDjMix(args: { input: string; format: string; output: string }): Promise<void> {
+    if (args.format !== 'fcpxml') {
+        throw new Error('Error: Only Final Cut Pro XML format (fcpxml) is currently supported');
+    }
+
+    const djMix = await readDjMixFile(args.input);
+    await exportToFCPXML(djMix, args.output);
+    console.log(`Final Cut Pro 7 XML file created successfully: ${args.output}`);
+}
+
+/**
  * The main function that orchestrates the DJ Mix to Final Cut Pro XML conversion process.
  */
-async function main() {
-    const args = parseArguments(process.argv.slice(2));
+export async function main(argv: string[] = process.argv.slice(2)): Promise<void> {
+    const args = parseArguments(argv);
 
     if (!args) {
         showHelp();
         process.exit(1);
     }
 
-    if (args.format !== 'fcpxml') {
-        console.error('Error: Only Final Cut Pro XML format (fcpxml) is currently supported');
-        process.exit(1);
-    }
-
     try {
-        const djMix = await readDjMixFile(args.input);
-        await exportToFCPXML(djMix, args.output);
+        await processDjMix(args);
     } catch (error) {
         console.error('Error in DJ Mix to Final Cut Pro XML conversion:', error);
         process.exit(1);
     }
 }
 
-main();
+if (require.main === module) {
+    main();
+}
