@@ -1,6 +1,10 @@
-# File Formats
+# Video Timeline Exporter
 
-This document describes the file formats used by video-timeline-exporter.
+This document describes the file formats and functionality of the video-timeline-exporter.
+
+## Overview
+
+The video-timeline-exporter is a tool that converts a DJ mix timeline into a Final Cut Pro 7 XML format (version 5). It takes a JSON input describing the DJ mix and outputs an XML file that can be imported into Final Cut Pro or similar video editing software.
 
 ## Input JSON Format
 
@@ -47,64 +51,46 @@ The input to video-timeline-exporter should be a JSON file with the following st
     - `transition`: Information about the transition from this track to the next.
         - `startTime`: The start time of the transition in the format "hh:mm:ss:mmm".
         - `endTime`: The end time of the transition in the format "hh:mm:ss:mmm".
-        - `type`: The type of transition effect (e.g., "Crossfade", "Iris wipe", "Heart", "Glitch").
+        - `type`: The type of transition effect ("Crossfade", "Iris wipe", "Heart", or "Glitch").
 
 ## Output Final Cut Pro XML Format
 
-The output of video-timeline-exporter is a Final Cut Pro XML file. This XML format is used to describe video editing projects and can be imported into Final Cut Pro and some other video editing software.
+The output is a Final Cut Pro 7 XML file (version 5). This XML format describes the video editing project and can be imported into Final Cut Pro and some other video editing software.
 
-The generated XML file will contain:
+The generated XML file contains:
 
 1. A single audio track with the complete mix audio.
 2. A video track with clips corresponding to each track in the input JSON.
-3. Basic information about transitions between video clips (note that complex transition effects may not be fully represented).
+3. Transition effects between video clips.
 
-The XML structure follows this general format:
+Key features of the output XML:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE xmeml>
-<xmeml version="5">
-  <sequence>
-    <name>DJ Mix</name>
-    <duration>...</duration>
-    <rate>
-      <ntsc>TRUE</ntsc>
-      <timebase>30</timebase>
-    </rate>
-    <media>
-      <audio>
-        <track>
-          <clipitem>
-            <name>Complete Mix</name>
-            <duration>...</duration>
-            <start>0</start>
-            <end>...</end>
-            <file>
-              <name>...</name>
-              <pathurl>...</pathurl>
-            </file>
-          </clipitem>
-        </track>
-      </audio>
-      <video>
-        <track>
-          <clipitem>
-            <name>Track 1</name>
-            <duration>...</duration>
-            <start>...</start>
-            <end>...</end>
-            <file>
-              <name>...</name>
-              <pathurl>...</pathurl>
-            </file>
-          </clipitem>
-          <!-- More clipitems for each track -->
-        </track>
-      </video>
-    </media>
-  </sequence>
-</xmeml>
+- Video resolution is set to 1080x1080 pixels.
+- Frame rate is set to 30fps (NTSC).
+- Each video clip has a "Basic Motion" filter applied.
+- Transitions between clips are mapped to Final Cut Pro transition types.
+- The audio track contains the complete mix as a single clip.
+
+## Usage
+
+To use the video-timeline-exporter, call the `exportToFCPXML` function with the DJ mix data and the desired output file path:
+
+```typescript
+import { exportToFCPXML, DJMix } from './path-to-module';
+
+const djMixData: DJMix = {
+  // Your DJ mix data here
+};
+
+exportToFCPXML(djMixData, '/path/to/output.xml')
+  .then(() => console.log('Export completed successfully'))
+  .catch(error => console.error('Export failed:', error));
 ```
 
-Note: The exact structure of the Final Cut Pro XML file may vary depending on the specific requirements of your video editing workflow. Always test the output with your intended editing application to ensure compatibility.
+## Limitations
+
+- Complex transition effects may not be fully represented in the Final Cut Pro XML format.
+- The exporter assumes a frame rate of 30fps for all timecode conversions.
+- Video clips are assumed to have a resolution of 1080x1080 pixels.
+
+Always test the output XML with your intended editing application to ensure compatibility and correct representation of your DJ mix timeline.
