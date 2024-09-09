@@ -151,7 +151,18 @@ npm test
 
 This will run all the unit tests in the `tests` directory. The tests cover both the core functionality in `index.ts` and the CLI operations in `cli.ts`.
 
+### Code Coverage
+
+To generate a code coverage report:
+
+```bash
+npm run test:coverage
+```
+
+This command will run the tests and generate a coverage report. You can view the detailed HTML report by opening coverage/lcov-report/index.html in your web browser.
+
 ### Development Usage
+
 
 When developing or testing the CLI locally, you can use the following npm script:
 

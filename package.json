@@ -13,7 +13,8 @@
     "start": "node dist/cli.js",
     "docs": "typedoc",
     "cli": "ts-node src/cli.ts",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "video",
