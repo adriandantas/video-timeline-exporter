@@ -5,41 +5,17 @@ import fs from 'fs/promises';
  * Represents a single track in the DJ mix.
  */
 export interface DJMixTrack {
-    /** The start time of the track in the format "hh:mm:ss:mmm" */
     startTime: string;
-
-    /** The track number in the playlist */
     trackNumber: number;
-
-    /** The title of the track */
     title: string;
-
-    /** The artist of the track */
     artist: string;
-
-    /** The tempo of the track in beats per minute */
     bpm: number;
-
-    /** The cumulative beat number at the start of this track in the mix */
     beatNumber: number;
-
-    /** The position of the track in the set, in the format "hh:mm:ss:mmm" */
     position: string;
-
-    /** The file path to the video clip associated with this track */
     videoPlaceholder: string;
-
-    /**
-     * Information about the transition from this track to the next
-     */
     transition: {
-        /** The start time of the transition in the format "hh:mm:ss:mmm" */
         startTime: string;
-
-        /** The end time of the transition in the format "hh:mm:ss:mmm" */
         endTime: string;
-
-        /** The type of transition effect */
         type: 'Crossfade' | 'Iris wipe' | 'Heart' | 'Glitch';
     };
 }
@@ -49,10 +25,7 @@ export interface DJMixTrack {
  */
 export interface DJMix {
     djMix: {
-        /** The file path to the complete audio mix */
         completeMixAudioFile: string;
-
-        /** An array of tracks in the mix */
         setTrackList: DJMixTrack[];
     };
 }
@@ -91,187 +64,180 @@ function mapTransitionType(transitionType: string): string {
  * @throws Will throw an error if the XML file cannot be created or written.
  */
 export async function exportToFCPXML(djMix: DJMix, outputFile: string): Promise<void> {
-    try {
-        const { completeMixAudioFile, setTrackList } = djMix.djMix;
+    const { completeMixAudioFile, setTrackList } = djMix.djMix;
 
-        const totalDuration = timecodeToFrame(setTrackList[setTrackList.length - 1].transition.endTime);
+    const totalDuration = timecodeToFrame(setTrackList[setTrackList.length - 1].transition.endTime);
 
-        const xmlObj = {
-            'xmeml': {
-                '$': { 'version': '5' },
-                'sequence': [{
-                    'name': ['DJ Mix Sequence'],
-                    'duration': [totalDuration.toString()],
-                    'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
-                    'in': ['-1'],
-                    'out': ['-1'],
-                    'timecode': [{
-                        'string': ['01:00:00:00'],
-                        'frame': ['108000'],
-                        'displayformat': ['NDF'],
-                        'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }]
-                    }],
-                    'media': [{
-                        'video': [{
-                            'track': [{
-                                'clipitem': setTrackList.map((track, index) => ({
-                                    '$': { 'id': `clip_${index}` },
-                                    'name': [track.title],
+    const xmlObj = {
+        'xmeml': {
+            '$': { 'version': '5' },
+            'sequence': [{
+                'name': ['DJ Mix Sequence'],
+                'duration': [totalDuration.toString()],
+                'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
+                'in': ['-1'],
+                'out': ['-1'],
+                'timecode': [{
+                    'string': ['01:00:00:00'],
+                    'frame': ['108000'],
+                    'displayformat': ['NDF'],
+                    'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }]
+                }],
+                'media': [{
+                    'video': [{
+                        'track': [{
+                            'clipitem': setTrackList.map((track, index) => ({
+                                '$': { 'id': `clip_${index}` },
+                                'name': [track.title],
+                                'duration': [timecodeToFrame(track.transition.endTime).toString()],
+                                'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
+                                'start': [timecodeToFrame(track.startTime).toString()],
+                                'end': [timecodeToFrame(track.transition.endTime).toString()],
+                                'enabled': ['TRUE'],
+                                'in': ['0'],
+                                'out': [timecodeToFrame(track.transition.endTime).toString()],
+                                'file': [{
+                                    '$': { 'id': `file_${index}` },
+                                    'name': [track.videoPlaceholder],
+                                    'pathurl': [`file://${track.videoPlaceholder}`],
+                                    'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
                                     'duration': [timecodeToFrame(track.transition.endTime).toString()],
-                                    'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
-                                    'start': [timecodeToFrame(track.startTime).toString()],
-                                    'end': [timecodeToFrame(track.transition.endTime).toString()],
-                                    'enabled': ['TRUE'],
-                                    'in': ['0'],
-                                    'out': [timecodeToFrame(track.transition.endTime).toString()],
-                                    'file': [{
-                                        '$': { 'id': `file_${index}` },
-                                        'name': [track.videoPlaceholder],
-                                        'pathurl': [`file://${track.videoPlaceholder}`],
-                                        'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
-                                        'duration': [timecodeToFrame(track.transition.endTime).toString()],
-                                        'timecode': [{
-                                            'string': ['00:00:00:00'],
-                                            'displayformat': ['NDF'],
-                                            'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }]
+                                    'timecode': [{
+                                        'string': ['00:00:00:00'],
+                                        'displayformat': ['NDF'],
+                                        'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }]
+                                    }],
+                                    'media': [{
+                                        'video': [{
+                                            'samplecharacteristics': [{
+                                                'width': ['1080'],
+                                                'height': ['1080']
+                                            }]
                                         }],
-                                        'media': [{
-                                            'video': [{
-                                                'samplecharacteristics': [{
-                                                    'width': ['1080'],
-                                                    'height': ['1080']
-                                                }]
-                                            }],
-                                            'audio': [{ 'channelcount': ['2'] }]
-                                        }]
-                                    }],
-                                    'compositemode': ['normal'],
-                                    'filter': [
-                                        {
-                                            'enabled': ['TRUE'],
-                                            'start': ['0'],
-                                            'end': [timecodeToFrame(track.transition.endTime).toString()],
-                                            'effect': [{
-                                                'name': ['Basic Motion'],
-                                                'effectid': ['basic'],
-                                                'effecttype': ['motion'],
-                                                'mediatype': ['video'],
-                                                'parameter': [
-                                                    {
-                                                        'name': ['Scale'],
-                                                        'value': ['100']
-                                                    },
-                                                    {
-                                                        'name': ['Center'],
-                                                        'value': [{ 'horiz': ['0'], 'vert': ['0'] }]
-                                                    },
-                                                    {
-                                                        'name': ['Rotation'],
-                                                        'value': ['0']
-                                                    }
-                                                ]
-                                            }]
-                                        }
-                                    ]
-                                })),
-                                'transitionitem': setTrackList.slice(0, -1).map((track, index) => ({
-                                    'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
-                                    'start': [timecodeToFrame(track.transition.startTime).toString()],
-                                    'end': [timecodeToFrame(track.transition.endTime).toString()],
-                                    'alignment': ['center'],
-                                    'effect': [{
-                                        'name': [mapTransitionType(track.transition.type)],
-                                        'effectid': [mapTransitionType(track.transition.type)],
-                                        'effecttype': ['transition'],
-                                        'mediatype': ['video'],
-                                        'effectcategory': ['Dissolve']
+                                        'audio': [{ 'channelcount': ['2'] }]
                                     }]
-                                })),
-                                'enabled': ['TRUE'],
-                                'locked': ['FALSE']
-                            }],
-                            'format': [{
-                                'samplecharacteristics': [{
-                                    'width': ['1080'],
-                                    'height': ['1080'],
-                                    'pixelaspectratio': ['square'],
-                                    'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }]
+                                }],
+                                'compositemode': ['normal'],
+                                'filter': [
+                                    {
+                                        'enabled': ['TRUE'],
+                                        'start': ['0'],
+                                        'end': [timecodeToFrame(track.transition.endTime).toString()],
+                                        'effect': [{
+                                            'name': ['Basic Motion'],
+                                            'effectid': ['basic'],
+                                            'effecttype': ['motion'],
+                                            'mediatype': ['video'],
+                                            'parameter': [
+                                                {
+                                                    'name': ['Scale'],
+                                                    'value': ['100']
+                                                },
+                                                {
+                                                    'name': ['Center'],
+                                                    'value': [{ 'horiz': ['0'], 'vert': ['0'] }]
+                                                },
+                                                {
+                                                    'name': ['Rotation'],
+                                                    'value': ['0']
+                                                }
+                                            ]
+                                        }]
+                                    }
+                                ]
+                            })),
+                            'transitionitem': setTrackList.slice(0, -1).map((track, index) => ({
+                                'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
+                                'start': [timecodeToFrame(track.transition.startTime).toString()],
+                                'end': [timecodeToFrame(track.transition.endTime).toString()],
+                                'alignment': ['center'],
+                                'effect': [{
+                                    'name': [mapTransitionType(track.transition.type)],
+                                    'effectid': [mapTransitionType(track.transition.type)],
+                                    'effecttype': ['transition'],
+                                    'mediatype': ['video'],
+                                    'effectcategory': ['Dissolve']
                                 }]
-                            }]
+                            })),
+                            'enabled': ['TRUE'],
+                            'locked': ['FALSE']
                         }],
-                        'audio': [{
-                            'track': [{
-                                'clipitem': [{
-                                    '$': { 'id': 'audio_mix' },
-                                    'name': ['Complete Mix'],
-                                    'duration': [totalDuration.toString()],
+                        'format': [{
+                            'samplecharacteristics': [{
+                                'width': ['1080'],
+                                'height': ['1080'],
+                                'pixelaspectratio': ['square'],
+                                'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }]
+                            }]
+                        }]
+                    }],
+                    'audio': [{
+                        'track': [{
+                            'clipitem': [{
+                                '$': { 'id': 'audio_mix' },
+                                'name': ['Complete Mix'],
+                                'duration': [totalDuration.toString()],
+                                'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
+                                'start': ['0'],
+                                'end': [totalDuration.toString()],
+                                'enabled': ['TRUE'],
+                                'in': ['0'],
+                                'out': [totalDuration.toString()],
+                                'file': [{
+                                    '$': { 'id': 'audio_file' },
+                                    'name': [completeMixAudioFile],
+                                    'pathurl': [`file://${completeMixAudioFile}`],
                                     'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
-                                    'start': ['0'],
-                                    'end': [totalDuration.toString()],
-                                    'enabled': ['TRUE'],
-                                    'in': ['0'],
-                                    'out': [totalDuration.toString()],
-                                    'file': [{
-                                        '$': { 'id': 'audio_file' },
-                                        'name': [completeMixAudioFile],
-                                        'pathurl': [`file://${completeMixAudioFile}`],
-                                        'rate': [{ 'timebase': ['30'], 'ntsc': ['TRUE'] }],
-                                        'duration': [totalDuration.toString()],
-                                        'media': [{
-                                            'audio': [{
-                                                'samplecharacteristics': [{
-                                                    'depth': ['16'],
-                                                    'samplerate': ['48000']
-                                                }],
-                                                'channelcount': ['2']
+                                    'duration': [totalDuration.toString()],
+                                    'media': [{
+                                        'audio': [{
+                                            'samplecharacteristics': [{
+                                                'depth': ['16'],
+                                                'samplerate': ['48000']
+                                            }],
+                                            'channelcount': ['2']
+                                        }]
+                                    }]
+                                }],
+                                'sourcetrack': [{
+                                    'mediatype': ['audio'],
+                                    'trackindex': ['1']
+                                }],
+                                'filter': [
+                                    {
+                                        'enabled': ['TRUE'],
+                                        'start': ['0'],
+                                        'end': [totalDuration.toString()],
+                                        'effect': [{
+                                            'name': ['Audio Levels'],
+                                            'effectid': ['audiolevels'],
+                                            'effecttype': ['audiolevels'],
+                                            'mediatype': ['audio'],
+                                            'parameter': [{
+                                                'name': ['Level'],
+                                                'value': ['1']
                                             }]
                                         }]
-                                    }],
-                                    'sourcetrack': [{
-                                        'mediatype': ['audio'],
-                                        'trackindex': ['1']
-                                    }],
-                                    'filter': [
-                                        {
-                                            'enabled': ['TRUE'],
-                                            'start': ['0'],
-                                            'end': [totalDuration.toString()],
-                                            'effect': [{
-                                                'name': ['Audio Levels'],
-                                                'effectid': ['audiolevels'],
-                                                'effecttype': ['audiolevels'],
-                                                'mediatype': ['audio'],
-                                                'parameter': [{
-                                                    'name': ['Level'],
-                                                    'value': ['1']
-                                                }]
-                                            }]
-                                        }
-                                    ]
-                                }],
-                                'enabled': ['TRUE'],
-                                'locked': ['FALSE']
-                            }]
+                                    }
+                                ]
+                            }],
+                            'enabled': ['TRUE'],
+                            'locked': ['FALSE']
                         }]
                     }]
                 }]
-            }
-        };
+            }]
+        }
+    };
 
-        const builder = new Builder({
-            xmldec: { version: '1.0', encoding: 'UTF-8' },
-            doctype: { pubID: '', sysID: '' },
-            renderOpts: { 'pretty': true, 'indent': '  ', 'newline': '\n' },
-            cdata: false
-        });
+    const builder = new Builder({
+        xmldec: { version: '1.0', encoding: 'UTF-8' },
+        doctype: { pubID: '', sysID: '' },
+        renderOpts: { 'pretty': true, 'indent': '  ', 'newline': '\n' },
+        cdata: false
+    });
 
-        const xml = builder.buildObject(xmlObj);
+    const xml = builder.buildObject(xmlObj);
 
-        await fs.writeFile(outputFile, xml);
-
-        console.log(`Final Cut Pro 7 XML file created successfully: ${outputFile}`);
-    } catch (error) {
-        console.error('Error creating Final Cut Pro 7 XML file:', error);
-        throw error;
-    }
+    await fs.writeFile(outputFile, xml);
 }
